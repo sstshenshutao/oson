@@ -60,6 +60,7 @@ The `optional` property indicates a value which is not required in a conformant 
     //orderly: string key1?;  
   
 The `requires` property indicates a that if a value is present in the instance JSON, another named value must also be present.  In __oson__ a requirement on another type is expressed by placing the property name (optionally quoted) enclosed in angle brackets at the end of a type definition:  
+
     //state and zip are required:  
     {  
         "\<state\>":"@String",  
