@@ -361,7 +361,8 @@ TODO: () [) (]
         # nothing  
   
     optionalEnumValues  
-        json_array  
+        '{' elements '}'    # math notation  
+        '{' '}'             # math notation  
         # nothing    
   
     optionalDefaultValue  
