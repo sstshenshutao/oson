@@ -173,46 +173,47 @@ In __oson__ :
     
 ### array types    
     
-The same Syntax as JSON, use `[]`, annotation of one data is enough for one-type-array.    
+The same Syntax as JSON, use `[]`. There are two cases in JSON Schema: List validation and Tuple validation.  
+From [JSON Schema](https://json-schema.org/understanding-json-schema/reference/array.html?highlight=array):  
+"List validation:a sequence of arbitrary length where each item matches the same schema."  
+"Tuple validation: a sequence of fixed length where each item may have a different schema. In this usage, the index (or location) of each item is meaningful as to how the value is interpreted. (This usage is often given a whole separate type in some programming languages, such as Python’s tuple)."  
+
+List validation in __oson__: Annotation of one data in Array:  
         
     "weights":[    
         "0.5@Numbers[0.00, 1.00]",    
         "0.1",    
-        "0.4"    
+        "0.4"    // at least one non-annotated value for list validation.  
     ]    
     
-    //orderly:     
-    //array [    
-    //    numbers{0.00, 1.00};    
-    //] weights; # an array of floating point weights between 0 and 1.    
+    {  
+        "type": "array",  
+        "items": {  
+            "type": "number"  
+        }  
+    }  
     
-"tuple typing": annotation of one data for each type is enough.    
+Tuple validation in __oson__: Annotation of every data:  
     
     "artificial":[    
         "13@Integer",    
         "str@String",    
-        "16",    
-        "1.6@Number"    
+        "16@Integer",    
+        "1.6@Number"    // non-annotated values are not allowed  
     ]    
     
-    //orderly:     
-    //array {    
-    //    integer;    
-    //    string;    
-    //    number;    
-    //} artificial;    
-    
     //JSON Schema:    
-    // "myarray": {    
+    // {    
     //      "type": "array",    
     //      "items": [    
     //        {"type": "integer"},    
     //        {"type": "string"},    
+    //        {"type": "integer"},    
     //        {"type": "number"}    
     //      ]    
     // }    
     
-Finally, when tuple typing is used, the star `@*` member may be used to pass the "additionalProperties" in JSON Schema.    
+Finally, when tuple typing is used, the star `@*` member may be used to pass the "additionalItems" in JSON Schema.(the additionalItems keyword is meaningless for list validation)    
     
     "intFollowedByWhatever":[    
         "@Integer"    
@@ -222,21 +223,21 @@ Finally, when tuple typing is used, the star `@*` member may be used to pass the
     //orderly:     
     //array { integer; }* intFollowedByWhatever;     
     
-Finally, array types also support range semantics, corresponds to "minItems/maxItems" in JSON Schema.    
+Finally, array types also support range semantics, corresponds to "minItems/maxItems" in JSON Schema."These keywords work whether doing List validation or Tuple validation."   
     
     "myArrayOfSmallInts":[    
         "@Integer"    
         "@String"    
-        "@[0,10]"    
+        "@[1,10]"    
     ]    
         
     //orderly:     
     //array { integer; string;} {0,10} myArrayOfSmallInts;    
     
-### handling "additional properties" in arrays and objects    
+### handling "additional items/properties" in arrays and objects    
     
 False by default.    
-True if `@*` member exists in arrays or `*`:`@*` property exists in objects.    
+True if `@*` member exists in arrays or `*(arbitrary key)`:`@*` property exists in objects.    
     
 ### null types    
     
@@ -277,7 +278,9 @@ Combine different types to one type. Every type muss be inside a parentheses.
 A key syntactic feature to note is the supported (required?) ommission of property names where they would be meaningless.    
     
 ### extensions    
-TODO: () [) (]    
+TODO: 
+1. "@*=Integer" => "additionalItems": { "type": "integer" }  
+2. () [) (]    
     
     
 ### Grammar    
@@ -314,7 +317,7 @@ TODO: () [) (]
         string  
   
     annotatedString  
-        openannotatedValueString annotation '"'  
+        openAnnotatedValueString annotation '"'  
         string  
   
     annotation  
@@ -369,13 +372,26 @@ TODO: () [) (]
         '=' json_value  
         # nothing    
       
+    string  
+        '"' '"'  
+        '"' chars '"'  
+  
+    chars  
+        CHAR chars  
+        CHAR  
+  
+    number  
+        INT FRAC EXP  
+        INT EXP  
+        INT FRAC  
+        INT    
   
     ----------------token table----------------  
     annotatedKeyString:= {DBL_QUOTE}{CHARS}{KEY_ANNOTATION_SYMBOL}{DBL_QUOTE}  
-    openannotatedValueString:= {DBL_QUOTE}{VALUE_ANNOTATION_SYMBOL}|{DBL_QUOTE}{CHARS}{VALUE_ANNOTATION_SYMBOL}  
-    string:= {DBL_QUOTE}{DBL_QUOTE}|{DBL_QUOTE}{CHARS}{DBL_QUOTE}  
-    number:= NUMBER  
+    openAnnotatedValueString:= {DBL_QUOTE}{VALUE_ANNOTATION_SYMBOL}|{DBL_QUOTE}{CHARS}{VALUE_ANNOTATION_SYMBOL}  
+    CHAR:= {CHAR}   
     whiteSpace:= [ \t\n]+  
+    
     ------define-----  
     KEY_ANNOTATION_SYMBOL       [\?]  
     VALUE_ANNOTATION_SYMBOL     [@]  
@@ -473,4 +489,4 @@ TODO: () [) (]
         E-    
     
 ## Author    
-Shutao Shen  --  04.04.2020
+Shutao Shen  --  06.04.2020
