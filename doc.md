@@ -129,7 +129,7 @@ Strings are specified in __oson__ using the `@String` inside annotation. Square 
     
 Like Orderly, omission of a specification of either minimum or maximum is allowed.    
         
-    "login": "loginExample@String[4,]"    //use '@@' to escape(to represent the real "@")    
+    "login": "loginExample@String[4,]"    //use '@@' to escape(only in example part) to represent the real "@")    
     
 Regular expressions are supported in JSONSchema for string values. In __oson__:    
     
